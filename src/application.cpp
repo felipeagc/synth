@@ -109,14 +109,22 @@ void App::run()
             &this->buffer_frames,
             stream_callback,
             (void *)this);
+    } catch (RtAudioError &e)
+    {
+        e.printMessage();
+        exit(1);
+    }
+
+    this->on_load();
+
+    try
+    {
         impl->audio->startStream();
     } catch (RtAudioError &e)
     {
         e.printMessage();
-        exit(0);
+        exit(1);
     }
-
-    this->load();
 
     bool should_close = false;
     while (!should_close)
@@ -136,7 +144,7 @@ void App::run()
             }
         }
 
-        this->update();
+        this->on_update();
 
         SDL_RenderClear(impl->renderer);
         SDL_RenderPresent(impl->renderer);
@@ -154,12 +162,12 @@ void App::run()
     {
         impl->audio->closeStream();
     }
-
-    this->finish();
 }
 
-void App::free()
+void App::destroy()
 {
+    this->on_destroy();
+
     delete impl->audio;
 
     SDL_DestroyRenderer(impl->renderer);
@@ -172,4 +180,14 @@ void App::free()
 uint32_t App::get_sample_rate()
 {
     return this->sample_rate;
+}
+
+void App::get_window_size(int *w, int *h)
+{
+    SDL_GetWindowSize(impl->window, w, h);
+}
+
+int App::get_mouse_state(int *x, int *y)
+{
+    return SDL_GetMouseState(x, y);
 }

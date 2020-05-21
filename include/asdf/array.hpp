@@ -22,7 +22,7 @@ private:
     }
 
 public:
-    void free()
+    void destroy()
     {
         this->len = 0;
         this->cap = 0;

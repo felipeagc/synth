@@ -14,21 +14,20 @@ class App {
 public:
     App(const String &name);
 
-    virtual void load(){};
+    void run();
+    void destroy();
 
-    virtual void update(){};
+    virtual void on_load(){};
+    virtual void on_update(){};
+    virtual void on_destroy(){};
+
+    uint32_t get_sample_rate();
+    void get_window_size(int *w, int *h);
+    int get_mouse_state(int *x, int *y);
 
     virtual void audio_stream(
         float *output_buffer,
         float *input_buffer,
         uint32_t n_buffer_frames,
         float stream_time);
-
-    virtual void finish(){};
-
-    void run();
-
-    void free();
-
-    uint32_t get_sample_rate();
 };
