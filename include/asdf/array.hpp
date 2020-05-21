@@ -96,4 +96,12 @@ struct ArrayView
     {
         return ptr[index];
     }
+
+    inline T* begin() {
+        return this->ptr;
+    }
+
+    inline T* end() {
+        return this->ptr + this->len;
+    }
 };

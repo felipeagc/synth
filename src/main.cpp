@@ -1,59 +1,49 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
 #include <RtAudio.h>
+#include <asdf/application.hpp>
+#include <math.h>
+
+struct MyApp : public App
+{
+    float global_time = 0;
+
+    MyApp() : App("Synth")
+    {
+    }
+
+    virtual void load()
+    {
+        printf("Starting synth\n");
+    }
+
+    virtual void audio_stream(
+        float *output_buffer,
+        float *input_buffer,
+        uint32_t n_buffer_frames,
+        float stream_time)
+    {
+        float sample_rate = get_sample_rate();
+        float time_step = 1.0f / sample_rate;
+
+        for (uint32_t i = 0; i < n_buffer_frames; i += 1)
+        {
+            float v = 0.1f * sinf(global_time * 440.0f * 2 * M_PI);
+
+            for (uint32_t j = 0; j < 2; j += 1)
+            {
+                *output_buffer++ = v;
+            }
+
+            global_time += time_step;
+        }
+    }
+};
 
 int main(int argc, const char *argv[])
 {
-    SDL_Init(SDL_INIT_VIDEO);
-
-    SDL_Window *window = SDL_CreateWindow(
-        "Synth",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        640,
-        480,
-        SDL_WINDOW_SHOWN);
-
-    if (!window)
-    {
-        fprintf(stderr, "Could not create window: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    SDL_Renderer *renderer =
-        SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
-
-    if (!renderer)
-    {
-        fprintf(stderr, "Could not create renderer: %s\n", SDL_GetError());
-        return 1;
-    }
-
-    bool should_close = false;
-    while (!should_close)
-    {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-
-            switch (event.type)
-            {
-            case SDL_QUIT: {
-                should_close = true;
-                break;
-            }
-
-            default: break;
-            }
-        }
-
-        SDL_RenderClear(renderer);
-        SDL_RenderPresent(renderer);
-    }
-
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    MyApp app;
+    app.run();
+    app.free();
 
     return 0;
 }
